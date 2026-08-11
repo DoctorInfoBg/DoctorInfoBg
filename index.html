@@ -420,6 +420,9 @@
   }
 
   /* ===== LETTER-BY-LETTER REVEAL ===== */
+  .split-letters .word{
+    display:inline-block; /* mantém a palavra inteira junta na quebra de linha */
+  }
   .split-letters .letter{
     display:inline-block;
     opacity:0;
@@ -433,10 +436,24 @@
     to{ opacity:1; transform:translateY(0); }
   }
 
+  /* ===== SCROLL REVEAL (elementos aparecem ao rolar a página) ===== */
+  .reveal{
+    opacity:0;
+    transform:translateY(28px);
+    transition:opacity .7s cubic-bezier(.2,.8,.2,1), transform .7s cubic-bezier(.2,.8,.2,1);
+    transition-delay:var(--rd, 0ms);
+    will-change:opacity, transform;
+  }
+  .reveal.in-view{
+    opacity:1;
+    transform:translateY(0);
+  }
+
   @media (prefers-reduced-motion: reduce){
     .btn-primary, .fab, .eyebrow::before{ animation:none !important; box-shadow:none; }
     .cursor-glow{ display:none; }
     .split-letters .letter{ animation-play-state:running; animation-delay:0ms; }
+    .reveal{ opacity:1; transform:none; transition:none; }
   }
 </style>
 </head>
@@ -806,17 +823,28 @@
 <script>
   const reduceMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
 
-  /* ---- letter-by-letter split ---- */
+  /* ---- letter-by-letter split (agrupado por palavra, pra não cortar no meio) ---- */
   function wrapLetters(node, counter){
     Array.from(node.childNodes).forEach(child => {
       if(child.nodeType === Node.TEXT_NODE){
         const frag = document.createDocumentFragment();
-        [...child.textContent].forEach(ch => {
-          const span = document.createElement('span');
-          span.className = 'letter';
-          span.textContent = ch === ' ' ? '\u00A0' : ch;
-          span.style.setProperty('--i', counter.i++);
-          frag.appendChild(span);
+        const parts = child.textContent.split(/(\s+)/); // separa em palavras e espaços
+        parts.forEach(part => {
+          if(part === '') return;
+          if(/^\s+$/.test(part)){
+            frag.appendChild(document.createTextNode(part)); // espaço real: pode quebrar linha aqui
+            return;
+          }
+          const wordSpan = document.createElement('span');
+          wordSpan.className = 'word';
+          [...part].forEach(ch => {
+            const span = document.createElement('span');
+            span.className = 'letter';
+            span.textContent = ch;
+            span.style.setProperty('--i', counter.i++);
+            wordSpan.appendChild(span);
+          });
+          frag.appendChild(wordSpan);
         });
         child.replaceWith(frag);
       } else if(child.nodeType === Node.ELEMENT_NODE){
@@ -846,6 +874,33 @@
   }, { threshold: 0.35 });
 
   document.querySelectorAll('.split-letters:not(.hero-title)').forEach(el => revealObserver.observe(el));
+
+  /* ---- reveal on scroll: cards, steps e blocos aparecendo conforme rola a página ---- */
+  // grupos: cada filho ganha um pequeno atraso em cascata em relação aos irmãos
+  document.querySelectorAll(
+    '.steps, .service-grid, .diff-grid, .mod-loc, .proof, .vitals'
+  ).forEach(group => {
+    Array.from(group.children).forEach((child, i) => {
+      child.classList.add('reveal');
+      child.style.setProperty('--rd', `${i * 90}ms`);
+    });
+  });
+
+  // blocos avulsos
+  document.querySelectorAll(
+    '.section-head p, .not-yet, .form-wrap > div, .form-card, .final-cta p, .final-ctas, .hero-photo'
+  ).forEach(el => el.classList.add('reveal'));
+
+  const revealUpObserver = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if(entry.isIntersecting){
+        entry.target.classList.add('in-view');
+        revealUpObserver.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.15, rootMargin: '0px 0px -40px 0px' });
+
+  document.querySelectorAll('.reveal').forEach(el => revealUpObserver.observe(el));
 
   /* ---- cursor glow ---- */
   if(!reduceMotion){
