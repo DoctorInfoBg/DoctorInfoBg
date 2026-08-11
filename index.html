@@ -317,6 +317,28 @@
   .form-submit{width:100%; justify-content:center; margin-top:6px;}
   .form-note{font-size:12px; color:var(--muted-2); margin-top:14px; font-family:var(--mono);}
 
+  /* ===== SITE CTA (venda de sites) ===== */
+  .site-cta{padding:70px 0;}
+  .site-cta-box{
+    display:flex; align-items:center; justify-content:space-between; gap:32px; flex-wrap:wrap;
+    background:var(--panel-2);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:36px 40px;
+    position:relative;
+    overflow:hidden;
+  }
+  .site-cta-box::before{
+    content:"";
+    position:absolute; inset:0;
+    background:radial-gradient(420px 260px at 100% 0%, rgba(255,90,31,.12), transparent 65%);
+    pointer-events:none;
+  }
+  .site-cta-box h2{font-size:clamp(1.35rem,2.6vw,1.8rem); margin-bottom:10px; max-width:520px;}
+  .site-cta-box p{color:var(--muted); font-size:15px; max-width:480px;}
+  .site-cta-box .btn{flex-shrink:0;}
+  @media (max-width:700px){ .site-cta-box{padding:28px 24px;} }
+
   /* ===== FOOTER / CTA ===== */
   .final-cta{text-align:center; padding-bottom:60px;}
   .final-cta h2{font-size:clamp(1.8rem,4vw,2.6rem); margin-bottom:20px;}
@@ -747,6 +769,20 @@
     <path d="M0 17 H300 L320 5 L350 29 L380 17 H1120"/>
     <path class="pulse" d="M0 17 H300 L320 5 L350 29 L380 17 H1120"/>
   </svg>
+
+  <!-- SITE CTA -->
+  <section class="site-cta" id="quero-um-site">
+    <div class="wrap">
+      <div class="site-cta-box">
+        <div>
+          <p class="eyebrow">Também fazemos isso</p>
+          <h2 class="split-letters">Quer um site como este pro seu negócio?</h2>
+          <p>Criamos sites profissionais, rápidos e responsivos, prontos pra converter clientes — do jeito que fizemos com o da Doctor Info. Fale direto comigo pelo WhatsApp e conta o que você precisa.</p>
+        </div>
+        <a class="btn btn-primary" href="https://wa.me/5511917696967?text=Ol%C3%A1%2C%20vim%20pelo%20site%20e%20quero%20saber%20mais%20sobre%20criar%20um%20site%20para%20o%20meu%20neg%C3%B3cio." target="_blank" rel="noopener">Quero um site no WhatsApp</a>
+      </div>
+    </div>
+  </section>
 
   <!-- FORM -->
   <section class="form-section" id="orcamento">
